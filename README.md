@@ -20,8 +20,9 @@ El resultado es un NCA que sigue cumpliendo las tres propiedades formales del mo
 
 ```
 .
-├── README.md
+├── README.md                       ← Este archivo (visión general)
 ├── Codigo/
+│   ├── README.md                   ← Guía del código (entrenamiento + app)
 │   ├── nca_entrenamiento.ipynb     ← Notebook de entrenamiento (Google Colab)
 │   └── nca-web/                    ← Aplicación web interactiva
 │       ├── backend/
@@ -34,18 +35,20 @@ El resultado es un NCA que sigue cumpliendo las tres propiedades formales del mo
 │       │   ├── index.html
 │       │   ├── script.js
 │       │   └── style.css
-│       ├── samples/                ← Imágenes de muestra para pruebas
 │       ├── README.md               ← Instrucciones de ejecución detalladas
 │       ├── requirements.txt
 │       ├── run.sh                  ← Arranque en Linux/Mac
 │       └── run.bat                 ← Arranque en Windows
 ├── Contexto/
+│   ├── README.md                   ← Índice de los documentos de contexto
 │   ├── 01_de_que_trata.md          ← Descripción del problema y enfoque
 │   ├── 02_arquitectura.md          ← Arquitectura del modelo y del sistema
 │   └── 03_flujo_completo.md        ← Flujo de datos de extremo a extremo
 ├── Diapositivas/
-│   └── SEGUIMIENTO PROYECTO AUTOMATAS CELULARES--PDF--.pdf
+│   ├── README.md                   ← Link a la presentación en Canva
+│   └── Presentacion Proyecto Automatas.pdf
 ├── ImagenesPrueba/                 ← Fotos del equipo usadas en pruebas
+│   ├── README.md
 │   ├── CamiloFlorez.jpeg
 │   ├── DavidSantiago.jpeg
 │   ├── Mariana.jpeg
@@ -56,10 +59,12 @@ El resultado es un NCA que sigue cumpliendo las tres propiedades formales del mo
 │   ├── SantiagoParedes.jpeg
 │   └── Teban.jpeg
 ├── Informe/                        ← Informe escrito del proyecto
+│   ├── README.md
+│   └── SEGUIMIENTO PROYECTO AUTOMATAS CELULARES--PDF--.pdf
 ├── Poster/
+│   ├── README.md
 │   └── Poster.png                  ← Poster de presentación
 └── Video/
-    ├── Presentación programa editado.mp4
     └── README.md                   ← Link al video en YouTube
 ```
 
@@ -122,6 +127,22 @@ El notebook [`Codigo/nca_entrenamiento.ipynb`](Codigo/nca_entrenamiento.ipynb) c
 ## Demo en video
 
 Video de demostración disponible en YouTube: [https://youtu.be/qtjdtpCSV40](https://youtu.be/qtjdtpCSV40)
+
+---
+
+## Documentación y materiales
+
+Cada carpeta tiene su propio README con el detalle. Vista rápida:
+
+| Carpeta | Contenido |
+|---|---|
+| [`Codigo/`](Codigo/README.md) | Notebook de entrenamiento + aplicación web (instrucciones Linux y Windows). |
+| [`Contexto/`](Contexto/README.md) | Explicación teórica y técnica del proyecto. |
+| [`Diapositivas/`](Diapositivas/README.md) | Presentación en Canva: [abrir ▸](https://canva.link/8uyik28td4ph7p7) |
+| [`Informe/`](Informe/README.md) | Informe escrito (PDF). |
+| [`Poster/`](Poster/README.md) | Póster de presentación. |
+| [`ImagenesPrueba/`](ImagenesPrueba/README.md) | Fotos del equipo para probar la app. |
+| [`Video/`](Video/README.md) | Video de demostración (YouTube). |
 
 ---
 

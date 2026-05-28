@@ -12,4 +12,4 @@ Demostración del Autómata Celular Neural reconstruyendo zonas borradas en imá
 
 ## Archivo local
 
-`Presentación programa editado.mp4` — versión editada del video de presentación final.
+La versión editada del video (`Presentación programa editado.mp4`) **no se incluye en el repositorio** por su tamaño. Usa el enlace de YouTube de arriba como fuente principal; si necesitas el archivo, colócalo en esta carpeta con ese nombre.
