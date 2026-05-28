@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NCA · Neural Cellular Automata</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <svg style="display:none">
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="overlay" result="blend"/>
+      <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </svg>
+
+  <div class="grain-overlay"></div>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-title">
+      <span class="title-serif">Neural Cellular Automata</span>
+      <span class="title-sub">image reconstruction</span>
+    </div>
+    <div class="topbar-metrics">
+      <span class="metric"><span class="metric-label">device</span><span class="metric-value" id="metricDevice">—</span></span>
+      <span class="metric"><span class="metric-label">channels</span><span class="metric-value">32</span></span>
+      <span class="metric"><span class="metric-label">resolution</span><span class="metric-value">100×100</span></span>
+      <span class="status-dot" id="statusDot" title="idle"></span>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <main class="workspace">
+
+    <!-- LEFT PANEL: SPECIMEN -->
+    <section class="panel" id="panelSpecimen">
+      <div class="panel-header">
+        <span class="panel-label">specimen</span>
+        <div class="panel-actions">
+          <button class="btn-ghost" id="btnLoad" title="Load image (L)">load image</button>
+          <input type="file" id="fileInput" accept="image/*" style="display:none" />
+        </div>
+      </div>
+
+      <div class="viewport-wrapper">
+        <div class="viewport" id="viewportInput">
+          <canvas id="imageCanvas" width="400" height="400"></canvas>
+          <canvas id="maskCanvas" width="400" height="400"></canvas>
+          <div class="viewport-corners">
+            <span class="corner tl"></span><span class="corner tr"></span>
+            <span class="corner bl"></span><span class="corner br"></span>
+          </div>
+          <div class="cursor-coords" id="cursorCoords">—</div>
+          <div class="empty-hint" id="emptyHint">
+            <span class="hint-icon">⊕</span>
+            <span>load an image to begin</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tool-group">
+          <button class="tool-btn active" id="toolBrush" title="Brush (B)" data-tool="brush">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M2 14 C2 11 6 9 8 7 L12 3 L13 4 L9 8 C7 10 5 14 2 14Z"/>
+            </svg>
+          </button>
+          <button class="tool-btn" id="toolEraser" title="Eraser (E)" data-tool="eraser">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+              <rect x="3" y="7" width="10" height="6" rx="1"/>
+              <path d="M6 7 L9 3 L13 7"/>
+            </svg>
+          </button>
+          <div class="tool-sep"></div>
+          <button class="tool-btn" id="btnUndo" title="Undo (Ctrl+Z)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M3 8 A5 5 0 1 1 7 13"/>
+              <path d="M3 4 L3 8 L7 8"/>
+            </svg>
+          </button>
+          <button class="tool-btn" id="btnRedo" title="Redo (Ctrl+Shift+Z)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M13 8 A5 5 0 1 0 9 13"/>
+              <path d="M13 4 L13 8 L9 8"/>
+            </svg>
+          </button>
+          <button class="tool-btn" id="btnClear" title="Clear mask (Del)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+              <line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="tool-group sliders">
+          <label class="slider-label">
+            <span>size</span>
+            <input type="range" id="brushSize" min="4" max="80" value="20" />
+            <span class="slider-val" id="brushSizeVal">20</span>
+          </label>
+          <label class="slider-label">
+            <span>opacity</span>
+            <input type="range" id="brushOpacity" min="20" max="100" value="80" />
+            <span class="slider-val" id="brushOpacityVal">80%</span>
+          </label>
+        </div>
+
+        <div class="tool-group">
+          <button class="btn-primary" id="btnReconstruct" disabled>reconstruct</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: RECONSTRUCTION -->
+    <section class="panel" id="panelResult">
+      <div class="panel-header">
+        <span class="panel-label">reconstruction</span>
+        <div class="panel-actions">
+          <button class="btn-ghost" id="btnDownload" disabled title="Download current frame">save frame</button>
+        </div>
+      </div>
+
+      <div class="viewport-wrapper">
+        <div class="viewport" id="viewportResult">
+          <canvas id="resultCanvas" width="400" height="400"></canvas>
+          <div class="viewport-corners">
+            <span class="corner tl"></span><span class="corner tr"></span>
+            <span class="corner bl"></span><span class="corner br"></span>
+          </div>
+          <div class="step-counter" id="stepCounter">—</div>
+          <div class="empty-hint" id="resultHint">
+            <span class="hint-icon">◎</span>
+            <span>paint a mask, then reconstruct</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tool-group playback">
+          <button class="tool-btn" id="btnPlay" title="Play/Pause (Space)" disabled>
+            <svg id="iconPlay" viewBox="0 0 16 16" fill="currentColor">
+              <polygon points="4,2 13,8 4,14"/>
+            </svg>
+            <svg id="iconPause" viewBox="0 0 16 16" fill="currentColor" style="display:none">
+              <rect x="3" y="2" width="4" height="12" rx="1"/>
+              <rect x="9" y="2" width="4" height="12" rx="1"/>
+            </svg>
+          </button>
+          <input type="range" id="frameSlider" min="0" max="0" value="0" class="frame-slider" disabled />
+        </div>
+
+        <div class="tool-group sliders">
+          <label class="slider-label">
+            <span>fps</span>
+            <input type="range" id="fpsSlider" min="2" max="60" value="20" />
+            <span class="slider-val" id="fpsVal">20</span>
+          </label>
+          <label class="slider-label">
+            <span>steps</span>
+            <input type="range" id="stepsSlider" min="30" max="300" value="120" step="10" />
+            <span class="slider-val" id="stepsVal">120</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- LOG -->
+      <div class="log" id="log">
+        <div class="log-line dim">› system ready</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- METRICS -->
+  <section class="metrics-section" id="metricsSection">
+    <div class="metrics-header">
+      <span class="metrics-title">convergencia &amp; calidad</span>
+      <span class="metrics-sub">comparación contra original · zona evaluada = píxeles borrados por el usuario</span>
+      <button class="btn-ghost compare-toggle" id="btnCompare" disabled>comparar pico vs. original</button>
+    </div>
+    <div class="metric-cards">
+      <div class="metric-card">
+        <div class="card-label">PSNR pico · zona hueco</div>
+        <div class="card-value" id="vPsnr">—</div>
+        <div class="card-sub">dB · superior = mejor</div>
+      </div>
+      <div class="metric-card">
+        <div class="card-label">SSIM pico</div>
+        <div class="card-value" id="vSsim">—</div>
+        <div class="card-sub">0–1 · superior = mejor</div>
+      </div>
+      <div class="metric-card">
+        <div class="card-label">Paso del pico</div>
+        <div class="card-value" id="vConvStep">—</div>
+        <div class="card-sub">mejor SSIM observado</div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-box">
+        <canvas id="chartConvergence"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="chartQuality"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARE (oculto hasta hacer click en "comparar") -->
+  <section class="compare-section hidden" id="compareSection">
+    <div class="compare-header">
+      <span class="compare-title">comparación · pico paso <span id="comparePeakStep">—</span></span>
+      <span class="compare-sub" id="compareMeta">PSNR — dB · SSIM —</span>
+      <button class="btn-ghost" id="btnCloseCompare">cerrar</button>
+    </div>
+    <div class="compare-canvases">
+      <div class="compare-side">
+        <div class="compare-side-label">original</div>
+        <div class="viewport compare-viewport">
+          <canvas id="originalCanvas" width="400" height="400"></canvas>
+          <div class="viewport-corners">
+            <span class="corner tl"></span><span class="corner tr"></span>
+            <span class="corner bl"></span><span class="corner br"></span>
+          </div>
+        </div>
+      </div>
+      <div class="compare-side">
+        <div class="compare-side-label">reconstrucción · pico SSIM</div>
+        <div class="viewport compare-viewport">
+          <canvas id="peakCanvas" width="400" height="400"></canvas>
+          <div class="viewport-corners">
+            <span class="corner tl"></span><span class="corner tr"></span>
+            <span class="corner bl"></span><span class="corner br"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span class="footer-formula">
+      <em>s</em><sub>t+1</sub> = <em>s</em><sub>t</sub> + Δ<em>s</em> · <em>m</em>
+      &nbsp;·&nbsp;
+      Δ<em>s</em> = Update(Perceive(<em>s</em><sub>t</sub>))
+      &nbsp;·&nbsp;
+      <em>m</em> ~ Bernoulli(0.5)
+    </span>
+    <span class="footer-keys">
+      <kbd>B</kbd> brush &nbsp;
+      <kbd>E</kbd> eraser &nbsp;
+      <kbd>Ctrl+Z</kbd> undo &nbsp;
+      <kbd>Del</kbd> clear &nbsp;
+      <kbd>Space</kbd> play/pause &nbsp;
+      <kbd>L</kbd> load
+    </span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
